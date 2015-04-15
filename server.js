@@ -56,5 +56,18 @@ router.route("/shorter")
 		console.log("Received POST from client");
 		console.log(req.body);
 
+		var originalURL,  //The original URL entered by the user.
+		base,  //URL part should be "http://localhost:<port number>/". 
+		path;  //The part of the URL that will be shortened.
+
+		originalURL = req.body.url;
+		base = "http://localhost:" + port + "/";
+
+		//Reference for checking if string contains substring: http://stackoverflow.com/questions/1789945/how-can-i-check-if-one-string-contains-another-substring
+		if(originalURL.indexOf(base) > -1){  //Entered URL starts with base, so assume user wants a shortened URL.
+			console.log("URL is long URL");
+		} else{  //Entered URL does not start with base, so assume user entered a shortened URL and wants the long URL.
+			console.log("URL is short URL");
+		}
 		res.send({"message": "it works"});
 	});
