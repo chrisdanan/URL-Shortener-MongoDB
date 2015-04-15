@@ -11,7 +11,8 @@ var express = require("express"),
 	router = express.Router(),
 	port = 3000,
 	app,
-	initialKey = 10 * Math.pow(36, 3);
+	initialKey = 10 * Math.pow(36, 3),
+	updatedKey = initialKey;
 
 app = express();
 
@@ -43,10 +44,67 @@ var URLSchema = mongoose.Schema({
 	longURL: String
 });
 
+var NextSchema = mongoose.Schema({
+	nextKey: String
+});
+
 //Set up the variable to hold objects for the database.
 var URLModel = mongoose.model("URLModel", URLSchema);
+var NextModel = mongoose.model("NextSchema", NextSchema);
 
 //Functions
+function getNextKey(base, originalURL, res){
+	var newKey,
+		increaseValue,
+		doesNotExist = false;
+
+	increaseValue = Math.floor(Math.random() * 10 + 1);
+
+	updatedKey = updatedKey + increaseValue;
+	newKey = updatedKey;
+	newKey = newKey.toString(36);
+
+	checkKeyExistence(newKey, base, originalURL, res);
+}
+
+function checkKeyExistence(key, base, originalURL, res){
+	NextModel.find({"nextKey": key}, function(err, data){
+		if(err){
+			console.log("ERROR: " + err);
+			return;
+		}
+
+		if(data.length > 0){  //The key exists in the database, so find a new key.
+			getNextKey(base, originalURL, res);
+		} else if(data.length === 0){  //The key does not exist in the database, so this key is valid.
+			var newShortURL = base + key;
+			var newURL = new URLModel({"shortURL": newShortURL, "longURL": originalURL});
+
+			newURL.save(function(err){
+				if(err){
+					console.log("ERROR: " + err);
+					return;
+				}
+
+				URLModel.find({"longURL": originalURL}, function(err, results){
+					if(err){
+						console.log("ERROR: " + err);
+						return;
+					}
+
+					results.forEach(function(elements){
+						var shortURL = elements.shortURL;
+						console.log(shortURL);
+
+						res.json({shortenedURL: shortURL});
+					});
+				});
+			});
+		} else{  //Incase of error, just get the next key.
+			getNextKey(base, originalURL, res);
+		}
+	});
+}
 
 //Routes
 //Route for homepage.
@@ -97,43 +155,8 @@ router.route("/shorter")
 					console.log("It is not in the database");
 
 					//Since it does not exist in the database, we need to create a shortened URL and store it in the database.
-					var newKey,
-						increaseValue,
-						shortenedURL;
 
-					increaseValue = Math.floor(Math.random() * 10 + 1);
-
-					initialKey = initialKey + increaseValue;
-
-					newKey = initialKey;
-
-					newKey = newKey.toString(36);
-
-					shortenedURL = base + newKey;
-
-					var newURL = new URLModel({"shortURL": shortenedURL,
-											"longURL": originalURL});
-
-					newURL.save(function(err){
-						if(err){
-							console.log("ERROR: " + err);
-							return;
-						}
-
-						URLModel.find({"longURL": originalURL}, function(err, data){
-							if(err){
-								console.log("ERROR: " + err);
-								return;
-							}
-
-							data.forEach(function(elements){
-								var shortURL = elements.shortURL;
-								console.log(shortURL);
-
-								res.json({shortenedURL: shortURL});
-							});
-						});
-					});
+					getNextKey(base, originalURL, res);
 				}
 			});
 		} else{  //Entered URL does not start with base, so assume user entered a shortened URL and wants the long URL.
