@@ -44,31 +44,29 @@ var URLSchema = mongoose.Schema({
 	longURL: String
 });
 
-var NextSchema = mongoose.Schema({
-	nextKey: String
-});
-
 //Set up the variable to hold objects for the database.
 var URLModel = mongoose.model("URLModel", URLSchema);
-var NextModel = mongoose.model("NextSchema", NextSchema);
 
 //Functions
+//Purpose: Generate a new key that will be used as the short URL.
 function getNextKey(base, originalURL, res){
-	var newKey,
-		increaseValue,
-		doesNotExist = false;
+	var newKey,  //The key that will act as the shortened URL.
+		increaseValue; //Random value to increase previous key by.
 
 	increaseValue = Math.floor(Math.random() * 10 + 1);
 
-	updatedKey = updatedKey + increaseValue;
-	newKey = updatedKey;
-	newKey = newKey.toString(36);
+	updatedKey = updatedKey + increaseValue;  //Increase updatedKey to reflect new generated key.
+	newKey = updatedKey;  
+	newKey = newKey.toString(36);  //Convert new key to base36.
 
 	checkKeyExistence(newKey, base, originalURL, res);
 }
 
+//Purpose: Check if the newly generated key is in the database. 
+//			If it is in the database, then get another key (since the generated key will cause a collison).
+//			If it is not in the database, then the generated key is valid, so store it in the database.
 function checkKeyExistence(key, base, originalURL, res){
-	NextModel.find({"nextKey": key}, function(err, data){
+	URLModel.find({"shortURL": base + key}, function(err, data){
 		if(err){
 			console.log("ERROR: " + err);
 			return;
@@ -77,7 +75,8 @@ function checkKeyExistence(key, base, originalURL, res){
 		if(data.length > 0){  //The key exists in the database, so find a new key.
 			getNextKey(base, originalURL, res);
 		} else if(data.length === 0){  //The key does not exist in the database, so this key is valid.
-			var newShortURL = base + key;
+			var newShortURL = base + key;  //"http://localhost:<port number>/<key>"
+
 			var newURL = new URLModel({"shortURL": newShortURL, "longURL": originalURL});
 
 			newURL.save(function(err){
@@ -85,13 +84,16 @@ function checkKeyExistence(key, base, originalURL, res){
 					console.log("ERROR: " + err);
 					return;
 				}
-
+				//After we save the pair of URLs in the database, find and send the new shortened URL to the client.
 				URLModel.find({"longURL": originalURL}, function(err, results){
 					if(err){
 						console.log("ERROR: " + err);
 						return;
 					}
 
+					//Note: the following assumes that there is only ONE unique shortened URL (i.e. no collisions).
+					//		If there is a key collision, then this will result in an error.
+					//		If there is time, fix this!
 					results.forEach(function(elements){
 						var shortURL = elements.shortURL;
 						console.log(shortURL);
@@ -100,7 +102,7 @@ function checkKeyExistence(key, base, originalURL, res){
 					});
 				});
 			});
-		} else{  //Incase of error, just get the next key.
+		} else{  //Since length is 0 or greater, this shouldn't become active.  If it does, something went wrong, so just get a new key.  Hopefully that will fix it.
 			getNextKey(base, originalURL, res);
 		}
 	});
