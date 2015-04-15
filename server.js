@@ -79,7 +79,10 @@ router.route("/shorter")
 
 					//Reference for getting value from object returned: http://stackoverflow.com/questions/12956438/accessing-mongodb-collection-values-in-javascript
 					data.forEach(function(elements){
-						console.log(elements.shortURL);
+						var shortURL = elements.shortURL;
+						console.log(shortURL);
+
+						res.json({shortenedURL: shortURL});
 					});
 				} else if(data.length === 0){  //Long URL is not in the database.
 					console.log("It is not in the database");
@@ -88,5 +91,4 @@ router.route("/shorter")
 		} else{  //Entered URL does not start with base, so assume user entered a shortened URL and wants the long URL.
 			console.log("URL is short URL");
 		}
-		res.send({"message": "it works"});
 	});
