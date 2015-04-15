@@ -9,6 +9,21 @@ var main = function(){
 
 	$("#buttonArea").append($getResultsBtn);
 
+	//Reference for sorting: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+	function sortURLS(resultsArr){
+		resultsArr.sort(function(a, b){
+			if(a.numViewed > b.numViewed){
+				return 1;
+			}
+
+			if(a.numViewed < b.numViewed){
+				return -1;
+			}
+
+			return 0;
+		});
+	}
+
 	$getResultsBtn.on("click", function(){
 		$.post("/getTopTen", function(res){
 			console.log("Received response from the server");
@@ -21,7 +36,13 @@ var main = function(){
 				resultsArr.push(resultObject);
 			});
 
-			console.log(resultsArr);
+			sortURLS(resultsArr);
+
+			$("#top10Results").empty();
+
+			resultsArr.reverse().forEach(function(object){
+				$("#top10Results").append($("<p>").text("Long URL: " + object.longURL + " | Number of views: " + object.numViewed));
+			});
 		});
 	});
 };
