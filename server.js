@@ -61,14 +61,20 @@ router.route("/shorter")
 		console.log(req.body);
 
 		var originalURL,  //The original URL entered by the user.
-		base;  //URL part should be "http://localhost:<port number>/". 
+		base, shorterbase, prefix;  //URL part should be "http://localhost:<port number>/". 
 
 		originalURL = req.body.url;
 		base = "http://localhost:" + port + "/";
+		shorterbase = "localhost:" + port + "/";
+		prefix = "http://";
 
 		//Reference for checking if string contains substring: http://stackoverflow.com/questions/1789945/how-can-i-check-if-one-string-contains-another-substring
-		if(originalURL.indexOf(base) > -1){  //Entered URL starts with base, so assume user wants a shortened URL.
+		if(originalURL.indexOf(base) > -1 || originalURL.indexOf(shorterbase) > -1){  //Entered URL starts with base, so assume user wants a shortened URL.
 			console.log("URL is long URL");
+
+			if(originalURL.indexOf(prefix) === -1) {
+				originalURL = prefix + originalURL;
+			}
 
 			URLModel.find({"longURL": originalURL}, function(err, data){
 				if(err){
