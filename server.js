@@ -193,6 +193,28 @@ router.route("/shorter")
 		}
 	});
 
+router.route("/topTen")
+	.get(function(req, res){
+		res.render("topTen", {title: "Top Ten URLs"});
+	});
+
+router.route("/getTopTen")
+	.post(function(req, res){
+		var resultsArr = [];
+
+		//Reference for getting existing database objects: http://docs.mongodb.org/manual/reference/operator/query/exists/
+		URLModel.find({"shortURL": {$exists: true}}, function(err, data){
+			if(err){
+				console.log("ERROR: " + err);
+				return;
+			}
+
+			resultsArr = data;
+
+			res.json(resultsArr);
+		});
+	});
+
 //Route for handling short and long URLs 
 router.route("/:url")
 	.get(function(req, res){
