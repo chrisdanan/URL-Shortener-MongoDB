@@ -47,7 +47,8 @@ console.log("Server listening on port " + port);
 //Set up the schema.
 var URLSchema = mongoose.Schema({
 	shortURL: String,
-	longURL: String
+	longURL: String,
+	numViewed: Number
 });
 
 //Set up the variable to hold objects for the database.
@@ -83,7 +84,8 @@ function checkKeyExistence(key, base, originalURL, res){
 		} else if(data.length === 0){  //The key does not exist in the database, so this key is valid.
 			var newShortURL = base + key;  //"http://localhost:<port number>/<key>"
 
-			var newURL = new URLModel({"shortURL": newShortURL, "longURL": originalURL});
+			var newURL = new URLModel({"shortURL": newShortURL, "longURL": originalURL, "numViewed": 0
+		});
 
 			newURL.save(function(err){
 				if(err){
@@ -222,6 +224,20 @@ router.route("/:url")
 					}
 
 					if(item.length > 0){  //Long URL was found.
+						//Update the number of times the URL was viewed.
+						//References for update: http://docs.mongodb.org/manual/reference/operator/update/inc/
+						//						http://stackoverflow.com/questions/9151092/increasing-one-field-in-a-mongodb-collection-with-mongoose
+						//						http://mongoosejs.com/docs/2.7.x/docs/updating-documents.html
+						URLModel.update({"longURL": url}, {$inc: {"numViewed": 1}}, function(err, numAffected){
+							if(err){
+								console.log("ERROR: " + err);
+								return;
+							}
+
+							console.log("Num views was updated:");
+							console.log(numAffected);
+						});
+
 						res.render("page", {title: URLpath});
 					} else if(item.length === 0){  //Long AND short URL was not found, so output 404.
 						res.render("pagenx", {title: "404'd"});
