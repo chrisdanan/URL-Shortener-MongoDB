@@ -236,9 +236,11 @@ router.route("/:url")
 
 							console.log("Num views was updated:");
 							console.log(numAffected);
-						});
 
-						res.render("page", {title: URLpath});
+							item.forEach(function(dbElements){
+								res.render("page", {title: URLpath, numberOfViews: dbElements.numViewed});
+							});
+						});
 					} else if(item.length === 0){  //Long AND short URL was not found, so output 404.
 						res.render("pagenx", {title: "404'd"});
 					}
