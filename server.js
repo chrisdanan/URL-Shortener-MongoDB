@@ -130,5 +130,24 @@ router.route("/shorter")
 			});
 		} else{  //Entered URL does not start with base, so assume user entered a shortened URL and wants the long URL.
 			console.log("URL is short URL");
+
+			var shortenedURL = base + originalURL;
+
+			URL.find({"shortURL": shortenedURL}, function(err, data){
+				if(err){
+					console.log("ERROR: " + err);
+					return;
+				}
+
+				if(data.length > 0){  //The shortened URL exists, so give the long URL to the user.
+					data.forEach(function(elements){
+						var longerURL = elements.longURL;
+						console.log(longerURL);
+						res.json({longerURL: longerURL});
+					})
+				} else if(data.length === 0){  //The shortened URL entered by the user does not exist, so print out error message.
+					res.json({error: "1"});
+				}
+			});
 		}
 	});
