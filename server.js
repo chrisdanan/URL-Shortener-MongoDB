@@ -151,3 +151,43 @@ router.route("/shorter")
 			});
 		}
 	});
+
+//Route for handling short and long URLs 
+router.route("/:url")
+	.get(function(req, res){
+		//Reference for getting /:url value: http://stackoverflow.com/questions/20089582/how-to-get-url-parameter-in-express-node-js
+		//									 http://expressjs.com/api.html
+		var path = req.params.url,  //The path that will be queried in the db.
+			base = "http://localhost:" + port + "/";
+
+		var url = base + path;
+
+		URL.find({"shortURL": url}, function(err, data){
+			if(err){
+				console.log("ERROR: " + err);
+				return;
+			}
+
+			if(data.length > 0){  //The URL was found in the database.
+				//The URL that was found is the short one, so redirect to the long one.
+				data.forEach(function(element){
+					var longURL = element.longURL;
+					res.redirect(longURL);
+				});
+			} else if(data.length === 0){  //The URL was not found in the database.
+				//The URL searched was the short one.  Now search for the long one.
+				URL.find({"longURL": url}, function(error, item){
+					if(error){
+						console.log("ERROR: " + error);
+						return;
+					}
+
+					if(item.length > 0){  //Long URL was found.
+						res.render("page", {title: path});
+					} else if(item.length === 0){  //Long AND short URL was not found, so output 404.
+						res.render("pagenx", {title: "404'd"});
+					}
+				})
+			}
+		})
+	})
