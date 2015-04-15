@@ -66,6 +66,25 @@ router.route("/shorter")
 		//Reference for checking if string contains substring: http://stackoverflow.com/questions/1789945/how-can-i-check-if-one-string-contains-another-substring
 		if(originalURL.indexOf(base) > -1){  //Entered URL starts with base, so assume user wants a shortened URL.
 			console.log("URL is long URL");
+
+			URL.find({"longURL": originalURL}, function(err, data){
+				if(err){
+					console.log("ERROR: " + err);
+					return;
+				}
+
+				//Check if the database has the long URL stored already.  If it does, the data will have length > 0; if it doesn't, data will have length 0.
+				if(data.length > 0){  //Long URL is already in the database.
+					console.log("It is in the database");
+
+					//Reference for getting value from object returned: http://stackoverflow.com/questions/12956438/accessing-mongodb-collection-values-in-javascript
+					data.forEach(function(elements){
+						console.log(elements.shortURL);
+					});
+				} else if(data.length === 0){  //Long URL is not in the database.
+					console.log("It is not in the database");
+				}
+			});
 		} else{  //Entered URL does not start with base, so assume user entered a shortened URL and wants the long URL.
 			console.log("URL is short URL");
 		}
