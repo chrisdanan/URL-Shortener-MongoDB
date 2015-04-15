@@ -1,3 +1,9 @@
+/*
+	Authors: Chris Danan and Mario Andrade
+	Created: April 14, 2015
+	Modified: April 15, 2015
+*/
+
 // Server-side code
 /* jshint node: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, newcap: true, nonew: true, quotmark: double, strict: true, undef: true, unused: true */
 
@@ -11,8 +17,8 @@ var express = require("express"),
 	router = express.Router(),
 	port = 3000,
 	app,
-	initialKey = 10 * Math.pow(36, 3),
-	updatedKey = initialKey;
+	initialKey = 10 * Math.pow(36, 3),  //Initial key for short URLs.
+	updatedKey = initialKey;  //Will hold values for short URLs.
 
 app = express();
 
@@ -114,7 +120,7 @@ router.route("/")
 	.get(function(req, res){
 		res.render("index", {title: "URL Shortener"});
 	});
-//Route for receiving a URL from the client.
+//Route for recieving POST data from the client.
 router.route("/shorter")
 	.post(function(req, res){
 		console.log("Received POST from client");
