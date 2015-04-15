@@ -1,3 +1,6 @@
+// Server-side code
+/* jshint node: true, curly: true, eqeqeq: true, forin: true, immed: true, indent: 4, latedef: true, newcap: true, nonew: true, quotmark: double, strict: true, undef: true, unused: true */
+
 "use strict";
 
 var express = require("express"),
@@ -41,7 +44,7 @@ var URLSchema = mongoose.Schema({
 });
 
 //Set up the variable to hold objects for the database.
-var URL = mongoose.model("URL", URLSchema);
+var URLModel = mongoose.model("URLModel", URLSchema);
 
 //Functions
 
@@ -58,8 +61,7 @@ router.route("/shorter")
 		console.log(req.body);
 
 		var originalURL,  //The original URL entered by the user.
-		base,  //URL part should be "http://localhost:<port number>/". 
-		path;  //The part of the URL that will be shortened.
+		base;  //URL part should be "http://localhost:<port number>/". 
 
 		originalURL = req.body.url;
 		base = "http://localhost:" + port + "/";
@@ -68,7 +70,7 @@ router.route("/shorter")
 		if(originalURL.indexOf(base) > -1){  //Entered URL starts with base, so assume user wants a shortened URL.
 			console.log("URL is long URL");
 
-			URL.find({"longURL": originalURL}, function(err, data){
+			URLModel.find({"longURL": originalURL}, function(err, data){
 				if(err){
 					console.log("ERROR: " + err);
 					return;
@@ -103,16 +105,16 @@ router.route("/shorter")
 
 					shortenedURL = base + newKey;
 
-					var newURL = new URL({"shortURL": shortenedURL,
+					var newURL = new URLModel({"shortURL": shortenedURL,
 											"longURL": originalURL});
 
-					newURL.save(function(err, result){
+					newURL.save(function(err){
 						if(err){
 							console.log("ERROR: " + err);
 							return;
 						}
 
-						URL.find({"longURL": originalURL}, function(err, data){
+						URLModel.find({"longURL": originalURL}, function(err, data){
 							if(err){
 								console.log("ERROR: " + err);
 								return;
@@ -133,7 +135,7 @@ router.route("/shorter")
 
 			var shortenedURL = base + originalURL;
 
-			URL.find({"shortURL": shortenedURL}, function(err, data){
+			URLModel.find({"shortURL": shortenedURL}, function(err, data){
 				if(err){
 					console.log("ERROR: " + err);
 					return;
@@ -144,7 +146,7 @@ router.route("/shorter")
 						var longerURL = elements.longURL;
 						console.log(longerURL);
 						res.json({longerURL: longerURL});
-					})
+					});
 				} else if(data.length === 0){  //The shortened URL entered by the user does not exist, so print out error message.
 					res.json({error: "1"});
 				}
@@ -157,12 +159,12 @@ router.route("/:url")
 	.get(function(req, res){
 		//Reference for getting /:url value: http://stackoverflow.com/questions/20089582/how-to-get-url-parameter-in-express-node-js
 		//									 http://expressjs.com/api.html
-		var path = req.params.url,  //The path that will be queried in the db.
+		var URLpath = req.params.url,  //The path that will be queried in the db.
 			base = "http://localhost:" + port + "/";
 
-		var url = base + path;
+		var url = base + URLpath;
 
-		URL.find({"shortURL": url}, function(err, data){
+		URLModel.find({"shortURL": url}, function(err, data){
 			if(err){
 				console.log("ERROR: " + err);
 				return;
@@ -176,18 +178,18 @@ router.route("/:url")
 				});
 			} else if(data.length === 0){  //The URL was not found in the database.
 				//The URL searched was the short one.  Now search for the long one.
-				URL.find({"longURL": url}, function(error, item){
+				URLModel.find({"longURL": url}, function(error, item){
 					if(error){
 						console.log("ERROR: " + error);
 						return;
 					}
 
 					if(item.length > 0){  //Long URL was found.
-						res.render("page", {title: path});
+						res.render("page", {title: URLpath});
 					} else if(item.length === 0){  //Long AND short URL was not found, so output 404.
 						res.render("pagenx", {title: "404'd"});
 					}
-				})
+				});
 			}
-		})
-	})
+		});
+	});
