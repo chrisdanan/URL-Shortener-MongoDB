@@ -7,7 +7,8 @@ var express = require("express"),
 	path = require("path"),
 	router = express.Router(),
 	port = 3000,
-	app;
+	app,
+	initialKey = 10 * Math.pow(36, 3);
 
 app = express();
 
@@ -86,6 +87,45 @@ router.route("/shorter")
 					});
 				} else if(data.length === 0){  //Long URL is not in the database.
 					console.log("It is not in the database");
+
+					//Since it does not exist in the database, we need to create a shortened URL and store it in the database.
+					var newKey,
+						increaseValue,
+						shortenedURL;
+
+					increaseValue = Math.floor(Math.random() * 10 + 1);
+
+					initialKey = initialKey + increaseValue;
+
+					newKey = initialKey;
+
+					newKey = newKey.toString(36);
+
+					shortenedURL = base + newKey;
+
+					var newURL = new URL({"shortURL": shortenedURL,
+											"longURL": originalURL});
+
+					newURL.save(function(err, result){
+						if(err){
+							console.log("ERROR: " + err);
+							return;
+						}
+
+						URL.find({"longURL": originalURL}, function(err, data){
+							if(err){
+								console.log("ERROR: " + err);
+								return;
+							}
+
+							data.forEach(function(elements){
+								var shortURL = elements.shortURL;
+								console.log(shortURL);
+
+								res.json({shortenedURL: shortURL});
+							});
+						});
+					});
 				}
 			});
 		} else{  //Entered URL does not start with base, so assume user entered a shortened URL and wants the long URL.
