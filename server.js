@@ -45,7 +45,16 @@ var URL = mongoose.model("URL", URLSchema);
 //Functions
 
 //Routes
+//Route for homepage.
 router.route("/")
 	.get(function(req, res){
 		res.render("index", {title: "URL Shortener"});
+	});
+//Route for receiving a URL from the client.
+router.route("/shorter")
+	.post(function(req, res){
+		console.log("Received POST from client");
+		console.log(req.body);
+
+		res.send({"message": "it works"});
 	});

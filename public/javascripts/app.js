@@ -12,6 +12,15 @@ var main = function(){
 	$("#inputURLDiv").append($inputURL);
 	$("#inputURLDiv").append($URLSubmitBtn);
 
+	$URLSubmitBtn.on("click", function(){
+		var inputURL = $inputURL.val();  //Store the user input.
+		$inputURL.val("");  //Empty the text box.
+
+		$.post("/shorter", {url: inputURL}, function(res){
+			console.log("Posted to the server and got back a response.");
+			console.log(res.message);
+		});
+	});
 };
 
 $(document).ready(main);
