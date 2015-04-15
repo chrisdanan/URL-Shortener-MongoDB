@@ -12,6 +12,7 @@ var express = require("express"),
 app = express();
 
 //Connect to the database.
+//Reference for checking for connection errors: http://stackoverflow.com/questions/6676499/is-there-a-mongoose-connect-error-callback
 mongoose.connect("mongodb://localhost/URLShortener", function(err){
 	if(err){
 		console.log("CONNECTION ERROR: " + err);
