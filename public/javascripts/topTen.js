@@ -43,6 +43,7 @@ var main = function(){
 			});
 
 			//Only get the top TEN results.
+			//Reference for slice: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
 			if(resultsArr.length > 10){
 				resultsArr = resultsArr.slice(0, 10);
 			}
