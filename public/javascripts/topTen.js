@@ -31,6 +31,9 @@ var main = function(){
 	}
 
 	$getResultsBtn.on("click", function(){
+
+		$("#top10Results").empty();
+		
 		$.post("/getTopTen", function(res){
 			console.log("Received response from the server");
 
@@ -49,8 +52,6 @@ var main = function(){
 			}
 
 			sortURLS(resultsArr);
-
-			$("#top10Results").empty();
 
 			resultsArr.reverse().forEach(function(object){
 				$("#top10Results").append($("<p>").text("Long URL: " + object.longURL + " | Number of views: " + object.numViewed));
