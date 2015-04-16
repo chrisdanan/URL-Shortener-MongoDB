@@ -18,7 +18,9 @@ var express = require("express"),
 	port = 3000,
 	app,
 	initialKey = 10 * Math.pow(36, 3),  //Initial key for short URLs.
-	updatedKey = initialKey;  //Will hold values for short URLs.
+	updatedKey = initialKey,  //Will hold values for short URLs.
+	getNextKey,  //Function that is defined later.
+	checkKeyExistence;  //Function that is defined later.
 
 app = express();
 
@@ -56,7 +58,7 @@ var URLModel = mongoose.model("URLModel", URLSchema);
 
 //Functions
 //Purpose: Generate a new key that will be used as the short URL.
-function getNextKey(base, originalURL, res){
+getNextKey = function(base, originalURL, res){
 	var newKey,  //The key that will act as the shortened URL.
 		increaseValue; //Random value to increase previous key by.
 
@@ -67,12 +69,12 @@ function getNextKey(base, originalURL, res){
 	newKey = newKey.toString(36);  //Convert new key to base36.
 
 	checkKeyExistence(newKey, base, originalURL, res);
-}
+};
 
 //Purpose: Check if the newly generated key is in the database. 
 //			If it is in the database, then get another key (since the generated key will cause a collison).
 //			If it is not in the database, then the generated key is valid, so store it in the database.
-function checkKeyExistence(key, base, originalURL, res){
+checkKeyExistence = function(key, base, originalURL, res){
 	URLModel.find({"shortURL": base + key}, function(err, data){
 		if(err){
 			console.log("ERROR: " + err);
@@ -114,7 +116,7 @@ function checkKeyExistence(key, base, originalURL, res){
 			getNextKey(base, originalURL, res);
 		}
 	});
-}
+};
 
 //Routes
 //Route for homepage.

@@ -40,7 +40,7 @@ var main = function(){
 
 			//Populate resultsArr with the URLs stored in the database (specifically, the long URL and the number of views it has).
 			res.forEach(function(data){
-				var resultObject = new Object();
+				var resultObject = {};
 				resultObject.longURL = data.longURL;
 				resultObject.numViewed = data.numViewed;
 				resultsArr.push(resultObject);
