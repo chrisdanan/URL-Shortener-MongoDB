@@ -42,6 +42,11 @@ var main = function(){
 				resultsArr.push(resultObject);
 			});
 
+			//Only get the top TEN results.
+			if(resultsArr.length > 10){
+				resultsArr = resultsArr.slice(0, 10);
+			}
+
 			sortURLS(resultsArr);
 
 			$("#top10Results").empty();
