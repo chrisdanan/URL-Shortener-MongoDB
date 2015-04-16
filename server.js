@@ -260,7 +260,7 @@ router.route("/:url")
 							console.log(numAffected);
 
 							item.forEach(function(dbElements){
-								res.render("page", {title: URLpath, numberOfViews: dbElements.numViewed});
+								res.render("page", {title: URLpath, thisURL: url});
 							});
 						});
 					} else if(item.length === 0){  //Long AND short URL was not found, so output 404.

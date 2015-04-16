@@ -11,7 +11,6 @@ var main = function(){
 	"use strict";
 
 	var $getResultsBtn = $("<button>").text("Get the Top Ten URLs");
-	var resultsArr = [];
 
 	$("#buttonArea").append($getResultsBtn);
 
@@ -33,10 +32,12 @@ var main = function(){
 	$getResultsBtn.on("click", function(){
 
 		$("#top10Results").empty();
-		
+
 		$.post("/getTopTen", function(res){
 			console.log("Received response from the server");
 
+			var resultsArr = [];
+			
 			//Populate resultsArr with the URLs stored in the database (specifically, the long URL and the number of views it has).
 			res.forEach(function(data){
 				var resultObject = new Object();
