@@ -259,7 +259,7 @@ router.route("/:url")
 							console.log("Num views was updated:");
 							console.log(numAffected);
 
-							item.forEach(function(dbElements){
+							item.forEach(function(){
 								res.render("page", {title: URLpath, thisURL: url});
 							});
 						});
